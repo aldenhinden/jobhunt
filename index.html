@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Search Counter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="main-container">
+    <h1>
+        JOB APPLICATION COUNTER
+    </h1>
+    <br>
+    <div class="subheader">This is how many jobs you have applied for (plus ~50) <br>since Monday, October 16, 2023...</div>
+
+
+    <div class="counter" id="counter">1</div>
+
+
+    <div class="input-containers">
+        <input type="text" id="companyInput" placeholder="Enter company name"><br>
+        <input type="text" id="linkInput" placeholder="Enter link"><br>
+    </div>
+    <button class="add-job" id="apply-button">APPLY</button>
+    <button class="remove-recent" id="remove-recent-button">Delete Last Entry</button>
+
+    <div id="displayInfo"></div>
+</div>
+
+<!-- EVENT LISTENER for "Apply" button -->
+<script>
+    let count = localStorage.getItem('count') || 0; // Retrieve the count from localStorage or default to 0
+    let companies = JSON.parse(localStorage.getItem('companies')) || []; // Retrieve the companies list from localStorage
+    const counterElement = document.getElementById('counter');
+    const applyButton = document.getElementById('apply-button');
+    const companyInput = document.getElementById('companyInput');
+    const linkInput = document.getElementById('linkInput');
+    const displayInfo = document.getElementById('displayInfo');
+
+    counterElement.innerText = count; // Set the initial count
+
+    displayInfo.innerHTML = companies
+        .map(
+            (company) =>
+                `<div class="company-text"><b>${company.name}</b> (<a href="${company.link}">link</a>)</div>`
+        )
+        .join('');
+
+    applyButton.addEventListener('click', function () {
+        // INCREMENT COUNTER
+        count++;
+        // count = 0; // RESET THE COUNT HERE
+        localStorage.setItem('count', count); // Store the updated count in localStorage
+        counterElement.innerText = count; // Update the displayed count
+
+        // ADD JOB TO LIST
+        const company = companyInput.value;
+        const link = linkInput.value;
+        companies.push({ name: company, link: link });
+        localStorage.setItem('companies', JSON.stringify(companies))
+        // localStorage.setItem('companies', JSON.stringify([])) // RESET THE COMPANY ARRAY HERE
+        displayInfo.innerHTML += `<div class="company-text"><b>${company}</b> (<a href="${link}">link</a>)</div>`;
+    });
+</script>
+
+<!-- EVENT LISTENER for "remove recent" button -->
+<script>
+    const removeButton = document.getElementById('remove-recent-button');
+    let removeCompanies = JSON.parse(localStorage.getItem('companies')) || [];
+
+    removeButton.addEventListener('click', function () {
+        if (removeCompanies.length > 0) {
+            removeCompanies.pop();
+            localStorage.setItem('companies', JSON.stringify(removeCompanies));
+
+            count = removeCompanies.length;
+            localStorage.setItem('count', count);
+
+            displayInfo.innerHTML = removeCompanies
+                .map(
+                    (company) =>
+                        `<div class="company-text"><b>${company.name}</b> (<a href="${company.link}">link</a>)</div>`
+                )
+                .join('');
+
+            counterElement.innerText = count;
+        }
+    });
+</script>
+
+
+</body>
+</html>
